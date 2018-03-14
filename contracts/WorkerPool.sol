@@ -317,6 +317,8 @@ contract WorkerPool is OwnableOZ, IexecHubAccessor, MarketplaceAccessor // Owned
 				require(contribution.enclaveChallenge == ecrecover(keccak256(_resultHash ^ _resultSign),  _v,  _r,  _s));
 		}
 
+
+
 		require(contribution.status == IexecLib.ContributionStatusEnum.AUTHORIZED);
 		contribution.status     = IexecLib.ContributionStatusEnum.CONTRIBUTED;
 		contribution.resultHash = _resultHash;
@@ -399,7 +401,7 @@ contract WorkerPool is OwnableOZ, IexecHubAccessor, MarketplaceAccessor // Owned
 		require((consensus.revealDate <= now && consensus.revealCounter > 0) || consensus.revealCounter == consensus.winnerCount);
 
 		// add penalized to the call worker to contrubution and they never contribute ?
-		require(distributeRewards(_woid, consensus));
+		//require(distributeRewards(_woid, consensus));
 
 		require(iexecHubInterface.finalizedWorkOrder(_woid, _stdout, _stderr, _uri));
 		return true;
