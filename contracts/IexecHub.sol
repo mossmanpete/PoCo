@@ -1,6 +1,6 @@
 pragma solidity ^0.4.18;
 
-import "./rlc-token/contracts/RLC.sol";
+import "rlc-token/contracts/RLC.sol";
 
 import './WorkOrder.sol';
 import './Marketplace.sol';
