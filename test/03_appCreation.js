@@ -20,6 +20,10 @@ Promise.promisifyAll(web3.evm,     { suffix: "Promise" });
 Extensions.init(web3, assert);
 var constants = require("./constants");
 
+let web3jScheduler	= '0x8bd535d49b095ef648cd85ea827867d358872809';
+let web3jWorker1 		= '0x70a1bebd73aef241154ea353d6c8c52d420d4f5b';
+let web3jWorker2 		= '0x55b541c70252aa3eb1581b8e74ce1ec17126b33a';
+
 contract('IexecHub', function(accounts) {
 
 	let scheduleProvider, resourceProvider, appProvider, datasetProvider, dappUser, dappProvider, iExecCloudUser, marketplaceCreator;
@@ -61,6 +65,10 @@ contract('IexecHub', function(accounts) {
 		await Extensions.refillAccount(scheduleProvider, dappProvider, 10);
 		await Extensions.refillAccount(scheduleProvider, iExecCloudUser, 10);
 		await Extensions.refillAccount(scheduleProvider, marketplaceCreator, 10);
+		await Extensions.refillAccount(scheduleProvider, web3jScheduler, 10);
+		await Extensions.refillAccount(scheduleProvider, web3jWorker1, 10);
+		await Extensions.refillAccount(scheduleProvider, web3jWorker2, 10);
+
 		let node = await web3.version.getNodePromise();
 		isTestRPC = node.indexOf("EthereumJS TestRPC") >= 0;
 		// INIT RLC
@@ -82,7 +90,10 @@ contract('IexecHub', function(accounts) {
 			aRLCInstance.transfer(datasetProvider,  1000, { from: marketplaceCreator, gas: constants.AMOUNT_GAS_PROVIDED }),
 			aRLCInstance.transfer(dappUser,         1000, { from: marketplaceCreator, gas: constants.AMOUNT_GAS_PROVIDED }),
 			aRLCInstance.transfer(dappProvider,     1000, { from: marketplaceCreator, gas: constants.AMOUNT_GAS_PROVIDED }),
-			aRLCInstance.transfer(iExecCloudUser,   1000, { from: marketplaceCreator, gas: constants.AMOUNT_GAS_PROVIDED })
+			aRLCInstance.transfer(iExecCloudUser,   1000, { from: marketplaceCreator, gas: constants.AMOUNT_GAS_PROVIDED }),
+			aRLCInstance.transfer(web3jScheduler,   1000, { from: marketplaceCreator, gas: constants.AMOUNT_GAS_PROVIDED }),
+			aRLCInstance.transfer(web3jWorker1,   	1000, { from: marketplaceCreator, gas: constants.AMOUNT_GAS_PROVIDED }),
+			aRLCInstance.transfer(web3jWorker2,   	1000, { from: marketplaceCreator, gas: constants.AMOUNT_GAS_PROVIDED }),
 		]);
 		assert.isBelow(txsMined[0].receipt.gasUsed, constants.AMOUNT_GAS_PROVIDED, "should not use all gas");
 		assert.isBelow(txsMined[1].receipt.gasUsed, constants.AMOUNT_GAS_PROVIDED, "should not use all gas");
@@ -91,6 +102,10 @@ contract('IexecHub', function(accounts) {
 		assert.isBelow(txsMined[4].receipt.gasUsed, constants.AMOUNT_GAS_PROVIDED, "should not use all gas");
 		assert.isBelow(txsMined[5].receipt.gasUsed, constants.AMOUNT_GAS_PROVIDED, "should not use all gas");
 		assert.isBelow(txsMined[6].receipt.gasUsed, constants.AMOUNT_GAS_PROVIDED, "should not use all gas");
+		assert.isBelow(txsMined[7].receipt.gasUsed, constants.AMOUNT_GAS_PROVIDED, "should not use all gas");
+		assert.isBelow(txsMined[8].receipt.gasUsed, constants.AMOUNT_GAS_PROVIDED, "should not use all gas");
+		assert.isBelow(txsMined[9].receipt.gasUsed, constants.AMOUNT_GAS_PROVIDED, "should not use all gas");
+
 		let balances = await Promise.all([
 			aRLCInstance.balanceOf(scheduleProvider),
 			aRLCInstance.balanceOf(resourceProvider),
@@ -98,7 +113,10 @@ contract('IexecHub', function(accounts) {
 			aRLCInstance.balanceOf(datasetProvider),
 			aRLCInstance.balanceOf(dappUser),
 			aRLCInstance.balanceOf(dappProvider),
-			aRLCInstance.balanceOf(iExecCloudUser)
+			aRLCInstance.balanceOf(iExecCloudUser),
+			aRLCInstance.balanceOf(web3jScheduler),
+			aRLCInstance.balanceOf(web3jWorker1),
+			aRLCInstance.balanceOf(web3jWorker2),
 		]);
 		assert.strictEqual(balances[0].toNumber(), 1000, "1000 nRLC here");
 		assert.strictEqual(balances[1].toNumber(), 1000, "1000 nRLC here");
@@ -107,6 +125,9 @@ contract('IexecHub', function(accounts) {
 		assert.strictEqual(balances[4].toNumber(), 1000, "1000 nRLC here");
 		assert.strictEqual(balances[5].toNumber(), 1000, "1000 nRLC here");
 		assert.strictEqual(balances[6].toNumber(), 1000, "1000 nRLC here");
+		assert.strictEqual(balances[7].toNumber(), 1000, "1000 nRLC here");
+		assert.strictEqual(balances[8].toNumber(), 1000, "1000 nRLC here");
+		assert.strictEqual(balances[9].toNumber(), 1000, "1000 nRLC here");
 
 		// INIT SMART CONTRACTS BY marketplaceCreator
 		aWorkerPoolHubInstance = await WorkerPoolHub.new({
@@ -199,6 +220,13 @@ contract('IexecHub', function(accounts) {
 		assert.isBelow(txsMined[4].receipt.gasUsed, constants.AMOUNT_GAS_PROVIDED, "should not use all gas");
 		assert.isBelow(txsMined[5].receipt.gasUsed, constants.AMOUNT_GAS_PROVIDED, "should not use all gas");
 		assert.isBelow(txsMined[6].receipt.gasUsed, constants.AMOUNT_GAS_PROVIDED, "should not use all gas");
+
+		//answerAskOrder
+		txMined = await aIexecHubInstance.deposit(100, {
+			from: iExecCloudUser,
+			gas: constants.AMOUNT_GAS_PROVIDED
+		});
+		assert.isBelow(txMined.receipt.gasUsed, constants.AMOUNT_GAS_PROVIDED, "should not use all gas");
 	});
 
 	it("free App Creation", async function() {
@@ -216,6 +244,12 @@ contract('IexecHub', function(accounts) {
 		assert.strictEqual(1, count.toNumber(), "appProvider must have 1 app now ");
 		let appAddress = await aAppHubInstance.getApp(appProvider, 1);
 		assert.strictEqual(appAddressFromLog, appAddress, "check appAddress");
+
+		console.log(
+			"\naRLCInstance:        " + aRLCInstance.address +
+			"\naIexecHubInstance:   " + aIexecHubInstance.address +
+			"\naAppInstance:        " + appAddress +
+			"\niExecCloudUser:      " + iExecCloudUser);
 	});
 
 });
