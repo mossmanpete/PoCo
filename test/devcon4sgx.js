@@ -472,24 +472,52 @@ contract('IexecHub', function(accounts) {
 
 
 //# Next 5 lines represent: L1) resultHash. L2) resultSign L3) v. L4) r. L5) s.
-//  a55031e2361c8bdd3e222eca5eb11fb1d949b79d444e697cba6508ebea855b6e
-//  749342a39e6367d2d4425a4bbd02188b0aee21b9b753bb9905b163e71c60fdd7
-//  27
-//  4e3db90707b569fbbbf9dc00a3b473e59a976fd2acff1fc022cf703f172d07ec
-//  6777dcd28b761aebf533188770ef304e67472297ced7d99b0745131662b9f597
-//  0
 
 
+
+//b3dee28119f0fc425a8637c6fd97db278761b9e3133f4d15759bf2a244f7181c
+//	  adfd74a249e7b8cbce0523aee61fbc73177eee5207442d5c7dea12fd3ef515f4
+//	  27
+//	  56250f7ce068893a0a24afa452804a3431d66c9f734d536f56dfb04784ea22f0
+//	  25e4a5c3b4ae37c749f4305f836670b95491d1d92bdb2f00020b15d4c3eb1bfb
+
+/*
+ *
+ * BAD ONE
     txMined = await aWorkerPoolInstance.contribute(woid,
-      '0xa55031e2361c8bdd3e222eca5eb11fb1d949b79d444e697cba6508ebea855b6e',//signed.hash
-      '0x749342a39e6367d2d4425a4bbd02188b0aee21b9b753bb9905b163e71c60fdd7',//signed.sign
+      '0xb3dee28119f0fc425a8637c6fd97db278761b9e3133f4d15759bf2a244f7181c',//signed.hash
+      '0adfd74a249e7b8cbce0523aee61fbc73177eee5207442d5c7dea12fd3ef515f4',//signed.sign
       '27',//sgxsign_v
-      '0x4e3db90707b569fbbbf9dc00a3b473e59a976fd2acff1fc022cf703f172d07ec',//sgxsign_r
-      '0x6777dcd28b761aebf533188770ef304e67472297ced7d99b0745131662b9f597', {//sgxsign_s
+      '0x56250f7ce068893a0a24afa452804a3431d66c9f734d536f56dfb04784ea22f0',//sgxsign_r
+      '0x25e4a5c3b4ae37c749f4305f836670b95491d1d92bdb2f00020b15d4c3eb1bfb', {//sgxsign_s
       from: resourceProvider,
       gas: constants.AMOUNT_GAS_PROVIDED
     });
-    checkBalance = await aIexecHubInstance.checkBalance.call(resourceProvider);
+
+*/
+ /*   GOOD ONE
+	      txMined = await aWorkerPoolInstance.contribute(woid,
+		            '0xa55031e2361c8bdd3e222eca5eb11fb1d949b79d444e697cba6508ebea855b6e',//signed.hash
+		            '0x749342a39e6367d2d4425a4bbd02188b0aee21b9b753bb9905b163e71c60fdd7',//signed.sign
+		            '27',//sgxsign_v
+		            '0x4e3db90707b569fbbbf9dc00a3b473e59a976fd2acff1fc022cf703f172d07ec',//sgxsign_r
+		            '0x6777dcd28b761aebf533188770ef304e67472297ced7d99b0745131662b9f597', {//sgxsign_s
+				          from: resourceProvider,
+				          gas: constants.AMOUNT_GAS_PROVIDED
+					      });
+ 
+GOOF ONE : 
+*/ 
+	                txMined = await aWorkerPoolInstance.contribute(woid,
+				                            '0x8839208909fb43bb4fe8a10b28685ede79a05789cd10c73e57d7ae602005d869',//signed.hash
+				                            '0xbfcbe2e1c61f5ab13f7044565b82ceef25a842e2c7eca8e50bc5e8604623b360',//signed.sign
+				                            '28',//sgxsign_v
+				                            '0x26fa003bff36455a9866031ecd9346c105d620e8afa60eb912904666d86b675f',//sgxsign_r
+				                            '0x77c4ceaa30d08a57b4b86403d32c025cde5a6f119bcba6412c15432eefc13d59', {//sgxsign_s
+								                                              from: resourceProvider,
+								                                              gas: constants.AMOUNT_GAS_PROVIDED
+													                                                    });
+ checkBalance = await aIexecHubInstance.checkBalance.call(resourceProvider);
     assert.strictEqual(checkBalance[0].toNumber(), 10, "check stake of the resourceProvider");
     assert.strictEqual(checkBalance[1].toNumber(), 30, "check stake locked of the resourceProvider : 30 + 10");
 
